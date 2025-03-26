@@ -1,30 +1,53 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
-import compression from 'compression';
-import { Express } from 'express';
+import { Express, Request, Response } from 'express';
 
 export function attachSSEServer(app: Express, mcpServer: McpServer) {
-  const transports: { [sessionId: string]: SSEServerTransport } = {};
+  const transports = new Map<string, SSEServerTransport>();
 
-  app.get('/sse', compression(), async (_, res) => {
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('X-Accel-Buffering', 'no');
+  app.get('/sse', async (_: Request, res: Response) => {
+    // Set required headers for SSE
+    res.header('X-Accel-Buffering', 'no');
 
+    // Create and store transport
     const transport = new SSEServerTransport('/messages', res);
-    transports[transport.sessionId] = transport;
+    transports.set(transport.sessionId, transport);
+
+    // Clean up on connection close
     res.on('close', () => {
-      delete transports[transport.sessionId];
+      transports.delete(transport.sessionId);
+      transport.close();
     });
-    await mcpServer.connect(transport);
+
+    try {
+      await mcpServer.connect(transport);
+    } catch (error) {
+      console.error('Error connecting transport:', error);
+      transport.close();
+      res.end();
+    }
   });
 
-  app.post('/messages', async (req, res) => {
+  app.post('/messages', async (req: Request, res: Response) => {
     const sessionId = req.query.sessionId as string;
-    const transport = transports[sessionId];
-    if (transport) {
+    if (!sessionId) {
+      console.error('Message received without sessionId');
+      res.status(400).json({ error: 'sessionId is required' });
+      return;
+    }
+
+    const transport = transports.get(sessionId);
+    if (!transport) {
+      console.error('No transport found for sessionId:', sessionId);
+      res.status(400).json({ error: 'No transport found for sessionId' });
+      return;
+    }
+
+    try {
       await transport.handlePostMessage(req, res);
-    } else {
-      res.status(400).send('No transport found for sessionId');
+    } catch (error) {
+      console.error('Error handling message:', error);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 }

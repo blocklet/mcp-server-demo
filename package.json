@@ -40,18 +40,19 @@
   "dependencies": {
     "@arcblock/did-auth": "^1.19.15",
     "@arcblock/did-auth-storage-nedb": "^1.7.1",
-    "@blocklet/sdk": "^1.16.39",
+    "@blocklet/logger": "^1.16.40",
+    "@blocklet/sdk": "^1.16.40",
     "@modelcontextprotocol/sdk": "^1.7.0",
     "@ocap/client": "^1.19.15",
     "@ocap/mcrypto": "^1.19.15",
     "@ocap/wallet": "^1.19.15",
     "axios": "^1.7.9",
-    "compression": "^1.8.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv-flow": "^4.1.0",
     "express": "^4.21.2",
     "express-async-errors": "^3.1.1",
+    "morgan": "^1.10.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {

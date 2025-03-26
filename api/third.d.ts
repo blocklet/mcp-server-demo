@@ -6,6 +6,8 @@ declare module 'express-async-errors';
 
 declare module 'compression';
 
+declare module 'morgan';
+
 namespace Express {
   interface Request {
     user?: {
