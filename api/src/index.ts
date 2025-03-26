@@ -1,12 +1,9 @@
-// eslint-disable-next-line prettier/prettier
-import 'express-async-errors';
-
 import fallback from '@blocklet/sdk/lib/middlewares/fallback';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import dotenv from 'dotenv-flow';
-// eslint-disable-next-line prettier/prettier
 import express, { Request, Response } from 'express';
+import 'express-async-errors';
 import morgan from 'morgan';
 import path from 'path';
 
@@ -15,36 +12,39 @@ import { attachSSEServer } from './mcp/sse';
 import routes from './routes';
 
 const logger = require('@blocklet/logger');
+const { name, version } = require('../../package.json');
 
 dotenv.config();
 
-const { name, version } = require('../../package.json');
+const isProduction = process.env.NODE_ENV === 'production' || process.env.ABT_NODE_SERVICE_ENV === 'production';
 
 export const app = express();
 
 app.set('trust proxy', true);
 
-app.use(morgan('combined', { stream: logger.getAccessLogStream() }));
-
-// Configure CORS for SSE
+// Configure CORS for SSE - must be before other middleware
 app.use(
   cors({
-    origin: true,
+    origin: '*', // Or configure specific origins
     credentials: true,
     methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   }),
 );
 
 app.use(cookieParser());
-app.use(express.json({ limit: '1 mb' }));
-app.use(express.urlencoded({ extended: true, limit: '1 mb' }));
+app.use(morgan('combined', { stream: logger.getAccessLogStream() }));
+
+// NOTE: This must before body parser such as express.json() and express.urlencoded()
+attachSSEServer(app, mcpServer);
 
 const router = express.Router();
+// NOTE: these body parser must not be used before attachSSEServer
+router.use(express.json({ limit: '1 mb' }));
+router.use(express.urlencoded({ extended: true, limit: '1 mb' }));
 router.use('/api', routes);
-app.use(router);
 
-const isProduction = process.env.NODE_ENV === 'production' || process.env.ABT_NODE_SERVICE_ENV === 'production';
+app.use(router);
 
 if (isProduction) {
   const staticDir = path.resolve(process.env.BLOCKLET_APP_DIR!, 'dist');
@@ -58,8 +58,6 @@ if (isProduction) {
 }
 
 const port = parseInt(process.env.BLOCKLET_PORT!, 10);
-
-attachSSEServer(app, mcpServer);
 
 export const server = app.listen(port, (err?: any) => {
   if (err) throw err;

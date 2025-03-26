@@ -1,6 +1,9 @@
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import express, { Request, Response } from 'express';
+import morgan from 'morgan';
 import { z } from 'zod';
 
 const server = new McpServer({
@@ -34,6 +37,20 @@ server.prompt('echo', { message: z.string() }, ({ message }) => ({
 }));
 
 const app = express();
+app.set('trust proxy', true);
+
+// Configure CORS for SSE - must be before other middleware
+app.use(
+  cors({
+    origin: '*', // Or configure specific origins
+    credentials: true,
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  }),
+);
+
+app.use(cookieParser());
+app.use(morgan('combined'));
 
 // to support multiple simultaneous connections we have a lookup object from
 // sessionId to transport

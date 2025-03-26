@@ -5,12 +5,12 @@ import { Express, Request, Response } from 'express';
 export function attachSSEServer(app: Express, mcpServer: McpServer) {
   const transports = new Map<string, SSEServerTransport>();
 
-  app.get('/sse', async (_: Request, res: Response) => {
+  app.get('/mcp/sse', async (_: Request, res: Response) => {
     // Set required headers for SSE
     res.header('X-Accel-Buffering', 'no');
 
     // Create and store transport
-    const transport = new SSEServerTransport('/messages', res);
+    const transport = new SSEServerTransport('/mcp/messages', res);
     transports.set(transport.sessionId, transport);
 
     // Clean up on connection close
@@ -28,7 +28,7 @@ export function attachSSEServer(app: Express, mcpServer: McpServer) {
     }
   });
 
-  app.post('/messages', async (req: Request, res: Response) => {
+  app.post('/mcp/messages', async (req: Request, res: Response) => {
     const sessionId = req.query.sessionId as string;
     if (!sessionId) {
       console.error('Message received without sessionId');
