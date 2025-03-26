@@ -11,6 +11,9 @@ import fallback from '@blocklet/sdk/lib/middlewares/fallback';
 import logger from './libs/logger';
 import routes from './routes';
 
+import { mcpServer } from './mcp/server';
+import { attachSSEServer } from './mcp/sse';
+
 dotenv.config();
 
 const { name, version } = require('../../package.json');
@@ -42,6 +45,8 @@ if (isProduction) {
 }
 
 const port = parseInt(process.env.BLOCKLET_PORT!, 10);
+
+attachSSEServer(app, mcpServer);
 
 export const server = app.listen(port, (err?: any) => {
   if (err) throw err;

@@ -1,0 +1,5 @@
+---
+description: 
+globs: api/src/mcp/server.ts
+alwaysApply: false
+---
