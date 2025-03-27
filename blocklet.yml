@@ -1,8 +1,7 @@
-title: mcp-server-blocklet
-description: A Blocklet DAPP blocklet
+title: mcp-server-demo
+description: A demo blocklet that hosts a MCP server
 keywords:
-  - blocklet
-  - react
+  - mcp
 group: dapp
 did: z2qaFq6rCFVZw14TNDHh7Tg37RSnZKiWbkboP
 main: api/dist/index.js
@@ -11,7 +10,7 @@ author:
   email: wangshijun2010@gmail.com
 repository:
   type: git
-  url: git+https://github.com/blocklet/create-blocklet.git
+  url: git+https://github.com/blocklet/mcp-server-demo.git
 specVersion: 1.2.8
 version: 0.1.0
 logo: logo.png
@@ -23,25 +22,28 @@ interfaces:
   - type: web
     name: publicUrl
     path: /
-    prefix: "*"
+    prefix: '*'
     port: BLOCKLET_PORT
     protocol: http
-community: ""
-documentation: ""
-homepage: ""
-license: ""
+community: ''
+documentation: ''
+homepage: ''
+license: ''
 payment:
   price: []
   share: []
 timeout:
   start: 60
 requirements:
-  server: ">=1.16.28"
-  os: "*"
-  cpu: "*"
+  server: '>=1.16.28'
+  os: '*'
+  cpu: '*'
 scripts:
   dev: npm run start
 environments: []
-capabilities: {}
-screenshots: []
+capabilities:
+  navigation: false
+  mcp: true
+screenshots:
+  - 625bc2fee5cd826d6b2f612720ec51c5.png
 components: []
