@@ -1,3 +1,4 @@
+import { getRelativeUrl } from '@blocklet/sdk/lib/component';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 import { Express, Request, Response } from 'express';
@@ -10,7 +11,7 @@ export function attachSSEServer(app: Express, mcpServer: McpServer) {
     res.header('X-Accel-Buffering', 'no');
 
     // Create and store transport
-    const transport = new SSEServerTransport('/mcp/messages', res);
+    const transport = new SSEServerTransport(getRelativeUrl('/mcp/messages'), res);
     transports.set(transport.sessionId, transport);
 
     // Clean up on connection close
