@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import blockletLogo from '../assets/blocklet.svg';
+// @ts-ignore
 import mcpLogo from '../assets/mcp.png';
 import './home.css';
 

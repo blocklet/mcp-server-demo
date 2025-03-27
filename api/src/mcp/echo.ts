@@ -57,6 +57,9 @@ app.use(morgan('combined'));
 const transports: { [sessionId: string]: SSEServerTransport } = {};
 
 app.get('/sse', async (_: Request, res: Response) => {
+  // Set required headers for SSE
+  res.header('X-Accel-Buffering', 'no');
+
   const transport = new SSEServerTransport('/messages', res);
   transports[transport.sessionId] = transport;
   res.on('close', () => {

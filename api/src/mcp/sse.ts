@@ -29,6 +29,7 @@ export function attachSSEServer(app: Express, mcpServer: McpServer) {
     }
   });
 
+  // FIXME: do authentication here
   app.post('/mcp/messages', async (req: Request, res: Response) => {
     const sessionId = req.query.sessionId as string;
     if (!sessionId) {
@@ -39,13 +40,32 @@ export function attachSSEServer(app: Express, mcpServer: McpServer) {
 
     const transport = transports.get(sessionId);
     if (!transport) {
-      console.error('No transport found for sessionId:', sessionId);
-      res.status(400).json({ error: 'No transport found for sessionId' });
+      // Instead of returning an error, send a special response that triggers reconnection
+      res.status(409).json({
+        error: 'transport_not_found',
+        message: 'Session expired or not found. Please reconnect.',
+        action: 'reconnect',
+      });
       return;
     }
 
+    // const permissions = {
+    //   owner: {
+    //     'tools/call': ['*'],
+    //   },
+    //   admin: {
+    //     'tools/call': ['*'],
+    //   },
+    //   member: {
+    //     'tools/call': ['text-transform', 'datetime'],
+    //   },
+    // };
+    // FIXME: do rbac check here
+
     try {
-      await transport.handlePostMessage(req, res);
+      // eslint-disable-next-line no-console
+      console.info('mcp message', req.body);
+      await transport.handlePostMessage(req, res, req.body);
     } catch (error) {
       console.error('Error handling message:', error);
       res.status(500).json({ error: 'Internal server error' });
