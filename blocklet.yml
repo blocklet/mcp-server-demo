@@ -3,7 +3,7 @@ description: A demo blocklet that hosts a MCP server
 keywords:
   - mcp
 group: dapp
-did: z2qaFq6rCFVZw14TNDHh7Tg37RSnZKiWbkboP
+did: z2qa4ajFofV2jjPkGyqJS6Pc76mQCYJq4sMUM
 main: api/dist/index.js
 author:
   name: wangshijun
