@@ -10,7 +10,7 @@
     "clean": "node scripts/build-clean.mjs",
     "bundle": "tsc --noEmit && npm run bundle:client && npm run bundle:api",
     "bundle:client": "vite build",
-    "bundle:api": "npm run clean && tsc -p tsconfig.api.json && blocklet bundle --compact --create-release",
+    "bundle:api": "npm run clean && tsc -p tsconfig.api.json && bn bundle --compact --create-release",
     "deploy": "npm run bundle && blocklet deploy .blocklet/bundle",
     "upload": "npm run bundle && blocklet upload .blocklet/release/blocklet.json",
     "prepare": "npx simple-git-hooks",
@@ -38,6 +38,7 @@
     ]
   },
   "dependencies": {
+    "@aigne/core": "^1.5.0",
     "@arcblock/did-auth": "^1.19.15",
     "@arcblock/did-auth-storage-nedb": "^1.7.1",
     "@blocklet/logger": "^1.16.40",
@@ -58,7 +59,7 @@
   "devDependencies": {
     "@arcblock/eslint-config": "^0.3.3",
     "@arcblock/eslint-config-ts": "^0.3.3",
-    "@blocklet/js-sdk": "^1.16.39",
+    "@blocklet/js-sdk": "^1.16.40",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",
@@ -85,7 +86,7 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3",
     "vite": "^5.4.14",
-    "vite-plugin-blocklet": "^0.9.28",
+    "vite-plugin-blocklet": "^0.9.29",
     "vite-plugin-svgr": "^4.3.0",
     "zx": "^8.3.2"
   },
@@ -98,6 +99,9 @@
       "style": "module",
       "parser": "typescript"
     }
+  },
+  "resolutions": {
+    "pkce-challenge": "https://github.com/AIGNE-io/pkce-challenge#dist"
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged"
