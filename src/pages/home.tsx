@@ -11,7 +11,7 @@ function Home() {
   return (
     <>
       <div>
-        <a href="https://www.modelcontextprotocol.io" target="_blank" rel="noreferrer">
+        <a href="https://modelcontextprotocol.io" target="_blank" rel="noreferrer">
           <img src={mcpLogo} className="logo" alt="MCP logo" />
         </a>
         <a href="https://www.arcblock.io/docs/blocklet-developer/getting-started" target="_blank" rel="noreferrer">

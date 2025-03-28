@@ -1,5 +1,5 @@
 title: Demo MCP Server
-description: A demo blocklet that hosts a MCP server
+description: Demo MCP server that runs on the blocklet platform
 keywords:
   - mcp
 group: dapp
