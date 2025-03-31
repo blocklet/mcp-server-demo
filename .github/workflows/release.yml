@@ -1,4 +1,4 @@
-name: Deploy
+name: release
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
       - master
 
 jobs:
-  Deploy:
+  blocklet:
     runs-on: ubuntu-latest
 
     if: "! contains(github.event.head_commit.message, '[skip ci]')"
@@ -18,22 +18,21 @@ jobs:
 
       - uses: pnpm/action-setup@v3
         with:
-          version: 9
+          version: 10
+
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'pnpm'
 
       - name: Blocklet workflow
         uses: blocklet/action-workflow@v1
         with:
+          deps-server-version: beta
           skip-upload: false
           skip-deploy: false
+          skip-release: true
           bundle-command: pnpm bundle
-          store-endpoint: ${{ secrets.STORE_ENDPOINT }}
-          store-access-token: ${{ secrets.STORE_ACCESS_TOKEN }}
-          server-endpoint: ${{ secrets.SERVER_ENDPOINT }}
-          server-access-key: ${{ secrets.SERVER_ACCESS_KEY }}
-          server-access-secret: ${{ secrets.SERVER_ACCESS_SECRET }}
-          slack-webhook: ${{ secrets.SLACK_WEBHOOK }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          store-endpoint: ${{ secrets.STORE_ENDPOINT_DEV }}
+          store-access-token: ${{ secrets.STORE_ACCESS_TOKEN_DEV }}
+          github-token: ${{ secrets.GIT_HUB_TOKEN }}

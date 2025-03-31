@@ -1,10 +1,23 @@
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 
+// import { tellStory } from './agent';
+
+// TODO: extend McpServer by adding an authorization layer
+// You can just add an extra param to `tool`, `resource`, `prompt` methods to specify the access policy
+// a few examples on how the policy can be:
+// { allow: ['owner', 'admin', 'member'], deny: [] }
+// { allow: ['invited'], deny: [] }
+// { allow: ['*'], deny: [] }
+// and then add another method `checkPermissions(body, user)` to check permissions when a tool is called
+// the body is the jsonrpc message body from the mcp client
+// the user is the user object from the context, in shape: { did: string, fullName: string, role: string }
+// the tool function will return a boolean value to indicate if the tool is allowed to be called
+
 const mcpServer = new McpServer(
   {
     name: 'Example MCP Server on ArcBlock Platform',
-    version: '1.0.0', // FIXME: should be updated to the actual version
+    version: '1.0.0',
   },
   {
     capabilities: {
@@ -197,6 +210,22 @@ mcpServer.tool(
     };
   },
 );
+
+// 5. Storytelling Tool
+// mcpServer.tool(
+//   'storytelling',
+//   'Tell a story about a given topic',
+//   {
+//     topic: z.string().describe('The topic to tell a story about'),
+//     language: z.string().describe('The language to tell the story in').default('zh-CN'),
+//   },
+//   async ({ topic, language }) => {
+//     const result = await tellStory(topic, language);
+//     return {
+//       content: [{ type: 'text', text: result }],
+//     };
+//   },
+// );
 
 mcpServer.resource(
   'document',
