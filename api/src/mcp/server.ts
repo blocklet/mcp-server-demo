@@ -1,7 +1,7 @@
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 
-import { tellStory } from './agent';
+// import { tellStory } from './agent';
 
 // TODO: extend McpServer by adding an authorization layer
 // You can just add an extra param to `tool`, `resource`, `prompt` methods to specify the access policy
@@ -212,20 +212,20 @@ mcpServer.tool(
 );
 
 // 5. Storytelling Tool
-mcpServer.tool(
-  'storytelling',
-  'Tell a story about a given topic',
-  {
-    topic: z.string().describe('The topic to tell a story about'),
-    language: z.string().describe('The language to tell the story in').default('zh-CN'),
-  },
-  async ({ topic, language }) => {
-    const result = await tellStory(topic, language);
-    return {
-      content: [{ type: 'text', text: result }],
-    };
-  },
-);
+// mcpServer.tool(
+//   'storytelling',
+//   'Tell a story about a given topic',
+//   {
+//     topic: z.string().describe('The topic to tell a story about'),
+//     language: z.string().describe('The language to tell the story in').default('zh-CN'),
+//   },
+//   async ({ topic, language }) => {
+//     const result = await tellStory(topic, language);
+//     return {
+//       content: [{ type: 'text', text: result }],
+//     };
+//   },
+// );
 
 mcpServer.resource(
   'document',
