@@ -12,7 +12,7 @@ repository:
   type: git
   url: git+https://github.com/blocklet/mcp-server-demo.git
 specVersion: 1.2.8
-version: 0.1.0
+version: 0.1.1
 logo: logo.png
 files:
   - dist
@@ -25,6 +25,7 @@ interfaces:
     prefix: '*'
     port: BLOCKLET_PORT
     protocol: http
+    proxyBehavior: service
 community: ''
 documentation: ''
 homepage: ''
@@ -47,3 +48,5 @@ capabilities:
 screenshots:
   - 625bc2fee5cd826d6b2f612720ec51c5.png
 components: []
+name: z2qa4ajFofV2jjPkGyqJS6Pc76mQCYJq4sMUM
+egress: true
