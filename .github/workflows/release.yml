@@ -33,7 +33,7 @@ jobs:
         with:
           deps-server-version: beta
           skip-upload: false
-          skip-deploy: false
+          skip-deploy: true
           skip-release: true
           bundle-command: pnpm bundle
           store-endpoint: ${{ secrets.STORE_ENDPOINT_DEV }}
