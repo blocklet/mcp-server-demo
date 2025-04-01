@@ -1,5 +1,5 @@
-import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
+import { McpServer, ResourceTemplate } from '@blocklet/mcp/server/mcp.js';
+import { SSEServerTransport } from '@blocklet/mcp/server/sse.js';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { Request, Response } from 'express';

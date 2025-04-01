@@ -1,17 +1,20 @@
+import type { McpServer } from '@blocklet/mcp/server/mcp.js';
+import { SSEServerTransport } from '@blocklet/mcp/server/sse.js';
 import { getRelativeUrl } from '@blocklet/sdk/lib/component';
-import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
+import session from '@blocklet/sdk/lib/middlewares/session';
 import { Express, Request, Response } from 'express';
 
 export function attachSSEServer(app: Express, mcpServer: McpServer) {
   const transports = new Map<string, SSEServerTransport>();
 
-  app.get('/mcp/sse', async (_: Request, res: Response) => {
+  app.get('/mcp/sse', session(), async (req: Request, res: Response) => {
     // Set required headers for SSE
     res.header('X-Accel-Buffering', 'no');
 
     // Create and store transport
     const transport = new SSEServerTransport(getRelativeUrl('/mcp/messages'), res);
+    // @ts-ignore
+    transport.user = req.user;
     transports.set(transport.sessionId, transport);
 
     // Clean up on connection close
@@ -29,8 +32,7 @@ export function attachSSEServer(app: Express, mcpServer: McpServer) {
     }
   });
 
-  // FIXME: do authentication here
-  app.post('/mcp/messages', async (req: Request, res: Response) => {
+  app.post('/mcp/messages', session(), async (req: Request, res: Response) => {
     const sessionId = req.query.sessionId as string;
     if (!sessionId) {
       console.error('Message received without sessionId');
@@ -49,22 +51,11 @@ export function attachSSEServer(app: Express, mcpServer: McpServer) {
       return;
     }
 
-    // const permissions = {
-    //   owner: {
-    //     'tools/call': ['*'],
-    //   },
-    //   admin: {
-    //     'tools/call': ['*'],
-    //   },
-    //   member: {
-    //     'tools/call': ['text-transform', 'datetime'],
-    //   },
-    // };
-    // FIXME: do rbac check here
-
     try {
       // eslint-disable-next-line no-console
       console.info('mcp message', req.body);
+      // @ts-ignore
+      transport.user = req.user; // we always need to update the user here
       await transport.handlePostMessage(req, res, req.body);
     } catch (error) {
       console.error('Error handling message:', error);

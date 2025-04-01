@@ -23,11 +23,14 @@ importers:
       '@blocklet/logger':
         specifier: ^1.16.41
         version: 1.16.41
+      '@blocklet/mcp':
+        specifier: ^1.8.0
+        version: 1.8.0
       '@blocklet/sdk':
         specifier: ^1.16.41
         version: 1.16.41
       '@modelcontextprotocol/sdk':
-        specifier: ^1.7.0
+        specifier: ^1.8.0
         version: 1.8.0
       '@ocap/client':
         specifier: ^1.19.15
@@ -390,6 +393,10 @@ packages:
 
   '@blocklet/logger@1.16.41':
     resolution: {integrity: sha512-5XFM2ZV/2ft7iojtsFOZ0NeENJPpGJzToC13ym82Tz1v0JPI7z/F6m64T5rpF+OhkqbCAQTtluiJ6J8ldUilWg==}
+
+  '@blocklet/mcp@1.8.0':
+    resolution: {integrity: sha512-2fiOTQ9UqA5NYxNSTVMZCtnlnSq/Fp6y+5HrqOPpUKjCtlXZfg3nCifpsKh0kpqpOZX1URPFKMQshK16HFj2Wg==}
+    engines: {node: '>=18'}
 
   '@blocklet/meta@1.16.41':
     resolution: {integrity: sha512-Toc+g8CLWPk/K0G73z17sFPjHJEd/hEgnma3m9BVnkEdEPisBczFQptTkeefJgOUmKCFyZhYmGfhw9gNPhaNNw==}
@@ -6462,6 +6469,21 @@ snapshots:
       - encoding
       - supports-color
       - utf-8-validate
+
+  '@blocklet/mcp@1.8.0':
+    dependencies:
+      content-type: 1.0.5
+      cors: 2.8.5
+      cross-spawn: 7.0.6
+      eventsource: 3.0.5
+      express: 5.0.1
+      express-rate-limit: 7.5.0(express@5.0.1)
+      pkce-challenge: https://codeload.github.com/AIGNE-io/pkce-challenge/tar.gz/517d10a9be530872a491fef0b9b787f021261c54
+      raw-body: 3.0.0
+      zod: 3.24.2
+      zod-to-json-schema: 3.24.5(zod@3.24.2)
+    transitivePeerDependencies:
+      - supports-color
 
   '@blocklet/meta@1.16.41':
     dependencies:
