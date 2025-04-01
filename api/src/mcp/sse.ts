@@ -1,4 +1,5 @@
 import { getRelativeUrl } from '@blocklet/sdk/lib/component';
+import session from '@blocklet/sdk/lib/middlewares/session';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 import { Express, Request, Response } from 'express';
@@ -6,12 +7,13 @@ import { Express, Request, Response } from 'express';
 export function attachSSEServer(app: Express, mcpServer: McpServer) {
   const transports = new Map<string, SSEServerTransport>();
 
-  app.get('/mcp/sse', async (_: Request, res: Response) => {
+  app.get('/mcp/sse', session(), async (req: Request, res: Response) => {
     // Set required headers for SSE
     res.header('X-Accel-Buffering', 'no');
 
     // Create and store transport
     const transport = new SSEServerTransport(getRelativeUrl('/mcp/messages'), res);
+    transport.user = req.user;
     transports.set(transport.sessionId, transport);
 
     // Clean up on connection close
@@ -29,8 +31,7 @@ export function attachSSEServer(app: Express, mcpServer: McpServer) {
     }
   });
 
-  // FIXME: do authentication here
-  app.post('/mcp/messages', async (req: Request, res: Response) => {
+  app.post('/mcp/messages', session(), async (req: Request, res: Response) => {
     const sessionId = req.query.sessionId as string;
     if (!sessionId) {
       console.error('Message received without sessionId');
@@ -38,33 +39,17 @@ export function attachSSEServer(app: Express, mcpServer: McpServer) {
       return;
     }
 
-    const transport = transports.get(sessionId);
+    let transport = transports.get(sessionId);
     if (!transport) {
-      // Instead of returning an error, send a special response that triggers reconnection
-      res.status(409).json({
-        error: 'transport_not_found',
-        message: 'Session expired or not found. Please reconnect.',
-        action: 'reconnect',
-      });
-      return;
+      // Create and store transport
+      transport = new SSEServerTransport(getRelativeUrl('/mcp/messages'), res);
+      transports.set(transport.sessionId, transport);
     }
-
-    // const permissions = {
-    //   owner: {
-    //     'tools/call': ['*'],
-    //   },
-    //   admin: {
-    //     'tools/call': ['*'],
-    //   },
-    //   member: {
-    //     'tools/call': ['text-transform', 'datetime'],
-    //   },
-    // };
-    // FIXME: do rbac check here
 
     try {
       // eslint-disable-next-line no-console
       console.info('mcp message', req.body);
+      transport.user = req.user; // we always need to update the user here
       await transport.handlePostMessage(req, res, req.body);
     } catch (error) {
       console.error('Error handling message:', error);
