@@ -13,8 +13,7 @@ export function attachSSEServer(app: Express, mcpServer: McpServer) {
 
     // Create and store transport
     const transport = new SSEServerTransport(getRelativeUrl('/mcp/messages'), res);
-    // @ts-ignore
-    transport.user = req.user;
+    transport.authContext = { user: req.user };
     transports.set(transport.sessionId, transport);
 
     // Clean up on connection close
@@ -54,8 +53,7 @@ export function attachSSEServer(app: Express, mcpServer: McpServer) {
     try {
       // eslint-disable-next-line no-console
       console.info('mcp message', req.body);
-      // @ts-ignore
-      transport.user = req.user; // we always need to update the user here
+      transport.authContext = { user: req.user };
       await transport.handlePostMessage(req, res, req.body);
     } catch (error) {
       console.error('Error handling message:', error);

@@ -1,10 +1,9 @@
-import { McpServerWithAuth } from '@blocklet/mcp/server/mcp-auth.js';
-import { ResourceTemplate } from '@blocklet/mcp/server/mcp.js';
+import { McpServer, ResourceTemplate } from '@blocklet/mcp/server/mcp.js';
 import { z } from 'zod';
 
 import { tellStory } from './agent';
 
-const mcpServer = new McpServerWithAuth(
+const mcpServer = new McpServer(
   {
     name: 'Example MCP Server on ArcBlock Platform',
     version: '1.0.0',
@@ -16,6 +15,92 @@ const mcpServer = new McpServerWithAuth(
     },
   },
 );
+
+/**
+ * Checks if a user has permission based on the access policy
+ * @param {object} context - The authorization context to check against
+ * @param {AccessPolicy} [policy] - The access policy to check against
+ * @returns {boolean} - Whether the user has permission
+ */
+function checkPermissions(context: any, policy: any) {
+  if (!policy) {
+    return true;
+  }
+
+  const user = context.user || null;
+  if (!user) {
+    return false;
+  }
+
+  // Check deny rules first
+  if (policy.deny) {
+    // Check denied DIDs
+    if (policy.deny.dids && policy.deny.dids.includes(user.did)) {
+      return false;
+    }
+
+    // Check denied roles
+    if (policy.deny.roles && policy.deny.roles.includes(user.role)) {
+      return false;
+    }
+
+    // Check denied providers
+    if (policy.deny.providers && policy.deny.providers.includes(user.provider)) {
+      return false;
+    }
+
+    // Check denied auth methods
+    if (user.method && policy.deny.methods && policy.deny.methods.includes(user.method)) {
+      return false;
+    }
+  }
+
+  // Check allow rules
+  if (policy.allow) {
+    let isAllowed = false;
+
+    // If no allow rules are specified, default to allowed
+    if (!policy.allow.dids && !policy.allow.roles && !policy.allow.providers && !policy.allow.methods) {
+      isAllowed = true;
+    } else {
+      // Check allowed DIDs
+      if (policy.allow.dids && policy.allow.dids.includes(user.did)) {
+        isAllowed = true;
+      }
+
+      // Check allowed roles
+      if (policy.allow.roles && policy.allow.roles.includes(user.role)) {
+        isAllowed = true;
+      }
+
+      // Check allowed providers
+      if (policy.allow.providers && policy.allow.providers.includes(user.provider)) {
+        isAllowed = true;
+      }
+
+      // Check allowed auth methods
+      if (user.method && policy.allow.methods && policy.allow.methods.includes(user.method)) {
+        isAllowed = true;
+      }
+    }
+
+    return isAllowed;
+  }
+
+  // If no rules specified, default to allowed
+  return true;
+}
+
+function wrapToolHandler(handler: Function, policy: any) {
+  return async (...input: any[]) => {
+    const extra = input[input.length - 1];
+    const hasPermission = await checkPermissions(extra.authContext, policy);
+    if (!hasPermission) {
+      throw new Error('Unauthorized');
+    }
+    return handler(...input);
+  };
+}
 
 // 1. Simple Calculator Tool
 mcpServer.tool(
@@ -103,55 +188,57 @@ mcpServer.tool(
     action: z.enum(['list', 'count', 'find']).describe('The query action to perform'),
     filter: z.string().optional().describe('Optional filter criteria'),
   },
-  ({ table, action, filter }) => {
-    const mockData = {
-      users: [
-        { id: 1, name: 'Alice', email: 'alice@example.com' },
-        { id: 2, name: 'Bob', email: 'bob@example.com' },
-      ],
-      products: [
-        { id: 1, name: 'Laptop', price: 999 },
-        { id: 2, name: 'Phone', price: 599 },
-      ],
-      orders: [
-        { id: 1, userId: 1, productId: 1, status: 'completed' },
-        { id: 2, userId: 2, productId: 2, status: 'pending' },
-      ],
-    };
+  wrapToolHandler(
+    ({ table, action, filter }: { table: string; action: string; filter: string }) => {
+      const mockData = {
+        users: [
+          { id: 1, name: 'Alice', email: 'alice@example.com' },
+          { id: 2, name: 'Bob', email: 'bob@example.com' },
+        ],
+        products: [
+          { id: 1, name: 'Laptop', price: 999 },
+          { id: 2, name: 'Phone', price: 599 },
+        ],
+        orders: [
+          { id: 1, userId: 1, productId: 1, status: 'completed' },
+          { id: 2, userId: 2, productId: 2, status: 'pending' },
+        ],
+      };
 
-    let result;
-    switch (action) {
-      case 'list':
-        result = mockData[table];
-        break;
-      case 'count':
-        result = `Total ${table}: ${mockData[table].length}`;
-        break;
-      case 'find':
-        if (filter) {
-          result = mockData[table].filter((item) =>
-            Object.values(item).some((val) => String(val).toLowerCase().includes(filter.toLowerCase())),
-          );
-        } else {
-          result = 'Please provide a filter criteria';
-        }
-        break;
-      default:
-        return {
-          content: [{ type: 'text', text: 'Invalid action' }],
-          isError: true,
-        };
-    }
+      let result;
+      switch (action) {
+        case 'list':
+          result = mockData[table];
+          break;
+        case 'count':
+          result = `Total ${table}: ${mockData[table].length}`;
+          break;
+        case 'find':
+          if (filter) {
+            result = mockData[table].filter((item) =>
+              Object.values(item).some((val) => String(val).toLowerCase().includes(filter.toLowerCase())),
+            );
+          } else {
+            result = 'Please provide a filter criteria';
+          }
+          break;
+        default:
+          return {
+            content: [{ type: 'text', text: 'Invalid action' }],
+            isError: true,
+          };
+      }
 
-    return {
-      content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
-    };
-  },
-  {
-    allow: {
-      roles: ['admin', 'owner'],
+      return {
+        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+      };
     },
-  },
+    {
+      allow: {
+        roles: ['admin', 'owner'],
+      },
+    },
+  ),
 );
 
 // 4. Time and Date Tool
@@ -214,17 +301,19 @@ mcpServer.tool(
     topic: z.string().describe('The topic to tell a story about'),
     language: z.string().describe('The language to tell the story in').default('zh-CN'),
   },
-  async ({ topic, language }) => {
-    const result = await tellStory(topic, language);
-    return {
-      content: [{ type: 'text', text: result }],
-    };
-  },
-  {
-    allow: {
-      roles: ['admin', 'member', 'owner'],
+  wrapToolHandler(
+    async ({ topic, language }: { topic: string; language: string }) => {
+      const result = await tellStory(topic, language);
+      return {
+        content: [{ type: 'text', text: result }],
+      };
     },
-  },
+    {
+      allow: {
+        roles: ['admin', 'member', 'owner'],
+      },
+    },
+  ),
 );
 
 mcpServer.resource(
