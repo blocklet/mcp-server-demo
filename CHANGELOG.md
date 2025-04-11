@@ -1,3 +1,7 @@
+## 0.1.4 (2025-4-12)
+
+- feat: use new auth and mcp sdk
+
 ## 0.1.3 (2025-4-2)
 
 - feat: support mcp server with auth
