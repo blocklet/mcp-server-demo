@@ -1,3 +1,7 @@
+## 0.1.5 (2025-4-16)
+
+- chore: bump deps and dedupe
+
 ## 0.1.4 (2025-4-12)
 
 - feat: use new auth and mcp sdk
