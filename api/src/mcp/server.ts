@@ -94,7 +94,7 @@ function checkPermissions(context: any, policy: any) {
 function wrapToolHandler(handler: Function, policy: any) {
   return async (...input: any[]) => {
     const extra = input[input.length - 1];
-    const hasPermission = await checkPermissions(extra.authContext, policy);
+    const hasPermission = await checkPermissions(extra.authInfo?.extra || {}, policy);
     if (!hasPermission) {
       throw new Error('Unauthorized');
     }

@@ -8,7 +8,7 @@ import morgan from 'morgan';
 import path from 'path';
 
 import { mcpServer } from './mcp/server';
-import { attachSSEServer } from './mcp/sse';
+import { attachMcpRoutes, attachMcpServer } from './mcp/streamable';
 import routes from './routes';
 
 const logger = require('@blocklet/logger');
@@ -37,7 +37,7 @@ app.use(morgan('combined', { stream: logger.getAccessLogStream() }));
 app.use(express.json({ limit: '1 mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1 mb' }));
 
-attachSSEServer(app, mcpServer);
+attachMcpRoutes(app);
 
 const router = express.Router();
 router.use('/api', routes);
@@ -57,7 +57,9 @@ if (isProduction) {
 
 const port = parseInt(process.env.BLOCKLET_PORT!, 10);
 
-export const server = app.listen(port, (err?: any) => {
+export const server = app.listen(port, async (err?: any) => {
+  await attachMcpServer(mcpServer);
+
   if (err) throw err;
   // eslint-disable-next-line no-console
   console.info(`> ${name} v${version} ready on ${port}`);

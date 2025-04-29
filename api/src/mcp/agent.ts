@@ -1,11 +1,11 @@
-import { AIAgent, ExecutionEngine } from '@aigne/core';
+import { AIAgent, AIGNE } from '@aigne/core';
 import { ClaudeChatModel } from '@aigne/core/models/claude-chat-model.js';
 
 const model = new ClaudeChatModel({
   apiKey: process.env.ANTHROPIC_API_KEY,
   model: 'claude-3-5-sonnet-latest',
 });
-const engine = new ExecutionEngine({ model });
+const engine = new AIGNE({ model });
 
 const storyTeller = AIAgent.from({
   instructions: `\
@@ -17,7 +17,7 @@ Language: {{language}}`,
 });
 
 export async function tellStory(topic: string, language: string = 'zh-CN') {
-  const result = await engine.call(storyTeller, {
+  const result = await engine.invoke(storyTeller, {
     topic,
     language,
   });
