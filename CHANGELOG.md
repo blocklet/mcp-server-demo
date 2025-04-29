@@ -1,3 +1,7 @@
+## 0.1.6 (2025-4-29)
+
+- feat: support streamable http transport
+
 ## 0.1.5 (2025-4-16)
 
 - chore: bump deps and dedupe
