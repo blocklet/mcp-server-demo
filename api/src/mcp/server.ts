@@ -205,16 +205,19 @@ mcpServer.tool(
         ],
       };
 
-      let result;
+      let result: any;
       switch (action) {
         case 'list':
+          // @ts-ignore
           result = mockData[table];
           break;
         case 'count':
+          // @ts-ignore
           result = `Total ${table}: ${mockData[table].length}`;
           break;
         case 'find':
           if (filter) {
+            // @ts-ignore
             result = mockData[table].filter((item) =>
               Object.values(item).some((val) => String(val).toLowerCase().includes(filter.toLowerCase())),
             );

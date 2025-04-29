@@ -14,6 +14,7 @@ export async function attachMcpServer(mcpServer: McpServer) {
 export function attachMcpRoutes(app: Express) {
   app.post('/mcp', session(), async (req: Request, res: Response) => {
     try {
+      // @ts-ignore
       req.auth = { extra: { user: req.user } };
       await transport.handleRequest(req, res, req.body);
     } catch (error) {
